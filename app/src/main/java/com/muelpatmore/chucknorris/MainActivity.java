@@ -44,12 +44,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
 
+
         initListeners();
         updateCache();
         cacheTimestamp = date.getTime();
         Log.i(TAG, "Current time: "+cacheTimestamp);
     }
 
+    // initialise listeners for UI interaction
     private void initListeners() {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -57,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
                 updateJokes();
             }
         });
+
     }
 
     /**
