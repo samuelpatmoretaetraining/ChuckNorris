@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork;
 import com.muelpatmore.chucknorris.models.ChuckModel;
 import com.muelpatmore.chucknorris.models.JokeModel;
 import com.muelpatmore.chucknorris.services.RequestInterface;
@@ -20,6 +21,7 @@ import java.util.Date;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
@@ -33,34 +35,28 @@ public class MainActivity extends AppCompatActivity {
     private SwipeRefreshLayout swipeRefreshLayout;
     private Date date = new Date();
     private long cacheTimestamp = 0;
+    private boolean connectedToNetwork = false;
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate (Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
 
-        /*
-         * Sets up a SwipeRefreshLayout.OnRefreshListener that is invoked when the user
-         * performs a swipe-to-refresh gesture.
-         */
-        swipeRefreshLayout.setOnRefreshListener(
-                new SwipeRefreshLayout.OnRefreshListener() {
-                    @Override
-                    public void onRefresh() {
-                        Log.i(TAG, "onRefresh called from SwipeRefreshLayout");
-
-                        // This method performs the actual data-refresh operation.
-                        // The method calls setRefreshing(false) when it's finished.
-                        updateJokes();
-                    }
-                }
-        );
-
+        initListeners();
         updateCache();
         cacheTimestamp = date.getTime();
         Log.i(TAG, "Current time: "+cacheTimestamp);
+    }
+
+    private void initListeners() {
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                updateJokes();
+            }
+        });
     }
 
     /**
@@ -72,11 +68,27 @@ public class MainActivity extends AppCompatActivity {
         swipeRefreshLayout.setRefreshing(false);
     }
 
-    private void updateCache() {
-        Log.i("updateCache", "start");
-        Log.i("updateCache", "getServerConnection");
+    private void updateCache() {isNetworkAvailable();}
+
+    private void isNetworkAvailable() {
+        ReactiveNetwork.observeInternetConnectivity()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Boolean>() {
+                    @Override public void accept (Boolean isConnectedToInternet){
+                        if(isConnectedToInternet) {
+                            updateFromServer();
+                        } else {
+                            Toast.makeText(MainActivity.this, "Network failure", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+    private void updateFromServer() {
+        Log.i(TAG, "Network connection active");
+
         requestInterface = ServerConnection.getServerConnection();
-        Log.i("updateCache", "getChuckList");
         requestInterface.getChuckList()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
