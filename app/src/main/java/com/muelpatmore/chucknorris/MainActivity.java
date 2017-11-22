@@ -2,6 +2,8 @@ package com.muelpatmore.chucknorris;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
 import com.muelpatmore.chucknorris.models.ChuckModel;
@@ -22,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
 
     private RequestInterface requestInterface;
     private ArrayList<JokeModel> jokes;
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,11 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onNext(ChuckModel value) {
-                        Log.i("onNext", "started");
-                        ArrayList<JokeModel> jokelist = new ArrayList<>(value.getJokes());
-                        Log.i("onNext", "List length: "+jokelist.size());
-                        //storeJokes(jokelist);
-                        jokes = jokelist;
+                        jokes = new ArrayList<>(value.getJokes());
                         Log.i("onNext", "Stored List length: "+jokes.size());
                         initRecyclerView();
                     }
@@ -64,7 +63,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initRecyclerView() {
-
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerLayout);
+        recyclerView.setLayoutManager(new LinearLayoutManager((getApplicationContext())));
+        recyclerView.setAdapter((new JokeAdapter(jokes, R.layout.joke_card, getApplicationContext())));
     }
 
 
