@@ -11,7 +11,7 @@ public class ChuckModel {
     private String type;
     @SerializedName("value")
     @Expose
-    private List<JokeModel> value = null;
+    private List<JokeModel> value;
 
     public String getType() {
         return type;
@@ -21,11 +21,11 @@ public class ChuckModel {
         this.type = type;
     }
 
-    public List<JokeModel> getValue() {
+    public List<JokeModel> getJokes() {
         return value;
     }
 
-    public void setValue(List<JokeModel> value) {
+    public void setJokes(List<JokeModel> value) {
         this.value = value;
     }
 

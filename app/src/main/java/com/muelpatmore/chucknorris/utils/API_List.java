@@ -6,5 +6,5 @@ package com.muelpatmore.chucknorris.utils;
 
 public class API_List {
     public static final String BASE_URL= "http://api.icndb.com/jokes/";
-    public static final String CAKE_LIST_API= "$jokenumber";
+    public static final String Chuck_API= "$jokenumber";
 }
